@@ -1,0 +1,31 @@
+(**
+* Exercises: Verification in Coq
+*)
+
+Require Import Bool Arith List.
+Import ListNotations.
+
+(**********************************************************************)
+
+(* Exercise: double even [2 star]. 
+
+Prove the following theorem about the function [even].
+Hint: you might find it helpful to create a lemma for
+the inductive case.
+
+*)
+
+Fixpoint even (n:nat) :=
+  match n with
+  | 0 => true
+  | 1 => false
+  | S (S k) => even k
+  end.
+
+Theorem double_even : forall n:nat, even(n + n) = true.
+Proof.
+
+Qed.
+
+(**********************************************************************)
+

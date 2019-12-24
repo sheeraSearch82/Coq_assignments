@@ -1,0 +1,257 @@
+(** Induction on Lists*)
+
+(**Theorem.  For all lists lst, P(lst).
+
+Proof.  By induction on lst.
+
+Case:  lst = nil
+Show:  P(nil)
+
+Case:  lst = h::t
+IH:    P(t)
+Show:  P(h::t)
+
+QED.*)
+
+(**Theorem:  for all lists lst, lst ++ nil = lst.
+
+Proof:  by induction on lst.
+P(lst) = lst ++ nil = lst.
+
+Case:  lst = nil
+Show:
+  P(nil)
+= nil ++ nil = nil
+= nil = nil
+
+Case:  lst = h::t
+IH: P(t) = (t ++ nil = t)
+Show
+  P(h::t)
+= (h::t) ++ nil = h::t
+= h::(t ++ nil) = h::t     // by definition of ++
+= h::t = h::t              // by IH 
+
+QED*)
+(***********************************************************************************************************)
+
+Require Import List.
+Import ListNotations.
+
+
+Theorem app_nil : forall (A : Type) (lst : list A), lst ++ nil = lst.
+
+Proof.
+intros A lst.
+induction lst as [ | h t IH].
+simpl. trivial.
+simpl. rewrite -> IH.
+trivial.
+Qed.
+
+(*************************************************************************************************************)
+Theorem app_assoc : forall (A : Type) (l1 l2 l3 : list A),
+l1 ++ (l2 ++ l3) = (l1 ++ l2) ++ l3.
+Proof.
+intros A l1 l2 l3.
+induction l1 as [ | h t IH].
+ -trivial.
+ -simpl. rewrite -> IH.
+trivial.
+Qed.
+
+(***************************************************************************************************************)
+(**Induction on natural numbers*)
+(**Theorem.  For all natural numbers n, P(n).
+
+Proof.  By induction on n.
+
+Case:  n = 0
+Show:  P(0)
+
+Case:  n = k+1
+IH:    P(k)
+Show:  P(k+1)
+
+QED.*)
+
+Require Import Arith.
+
+Print nat.
+
+Compute S ( S O).
+
+(**Adition of two nat numbers*)
+Fixpoint my_add ( a b : nat) : nat :=
+ match a with
+ | O => b
+ | S a' => S (my_add a' b)
+end.
+
+Compute my_add (S (S O)) (S (S (S O))).
+
+(**Sum of first n natural numbers*)
+
+Fixpoint sum_to (n : nat) : nat :=
+ match n with
+ | O => O
+ | S n' => n + sum_to n'
+ end.
+
+Compute sum_to (S (S O)).
+
+(**************************************************************************************************************)
+
+(**The equality operator = returns a proposition (i.e., something we could try to prove), 
+whereas the if expression expects a Boolean (i.e., true or false) as its guard. 
+(Actually if is willing to accept any value of an inductive type with exactly two constructors 
+as its guard, and bool is an example of such a type.) To fix this problem, we need to use an equality operator 
+that returns a bool, rather than a Prop, when applied to two nats. Such an operator is defined in the 
+Arith library for us:*)
+
+Locate "=?".
+Check Nat.eqb.
+
+(*sum_to n = n * (n+1) / 2. This theorem cannot be proved easily. This involves divison. Hence in order to
+ease the proof, we rewrite the Theorem as 2 * sum_to n = n * (n + 1)*)
+
+(**Now we cannot prove this theorem easily, without writing a helper lemma,
+that is 2 * sum_to (S n) = 2 * (S n) + 2 * sum_to n. This rewriting help Coq to find a match with the 
+Induction Hypothesis easily.*)
+
+Lemma sum_helper : forall n : nat, 2 * sum_to (S n) = 2 * (S n) + 2 * sum_to n.
+Proof.
+intros n.
+simpl.
+ring.
+Qed.
+
+Theorem sum_sq_no_div : forall n : nat, 2 * sum_to n = n * (n+1).
+Proof.
+intros n.
+induction n as [ | k IH].
+trivial.
+rewrite -> sum_helper.
+rewrite -> IH.
+ring.
+Qed.
+
+Search (_ * _ / _).
+Search (_ * _ = _ * _).
+
+Lemma div_helper : forall a b c : nat,
+c <> 0 -> c * a = b -> a = b / c.
+Proof.
+intros a b c neq eq.
+rewrite <- eq.
+rewrite Nat.mul_comm.
+rewrite Nat.div_mul.
+trivial.
+assumption.
+Qed.
+
+Theorem sum_sq : forall n : nat , sum_to n = n * (n+1) /2.
+Proof.
+intros n.
+apply div_helper.
+discriminate.
+rewrite -> sum_sq_no_div.
+trivial.
+Qed.
+
+(**************************************************************************************************************)
+(**Rings and Fields*)
+(** semi-ring 
+ 0 + x = 0 
+x + y = y + x
+x + (y + z) = (x + y) + z
+
+0 * x = 0
+1 * x = 1
+x * y = y * x
+x * (y * z) = (x * y) * z
+
+(x + y) * z = (x * z) + (y * z)
+*)
+(** If we extend the equations above with the following two, we get a specification for a ring:
+x - y = x + (-y)
+x + (-x) = 0*)
+(** 1/x as syntactic sugar for inv x, where inv is a new operator.
+If we take all the the ring axioms and add the following axiom for inv, we get what is called a field:
+x * 1/x = 1     if x<>0*)
+Theorem plus_comm : forall a b,
+a + b = b + a.
+Proof.
+intros a b.
+ring.
+Qed.
+Theorem foil : forall a b c d,
+(a + b) * ( c + d) = a*c + a*d + b*c + b*d.
+Proof.
+intros a b c d.
+ring.
+Qed.
+
+Print foil.
+
+(** If we want to reason about the integers instead of the natural numbers, we can use 
+a library called ZArith for that. The name comes from the fact that Z is used in mathematics 
+to denote the integers.*)
+Require Import ZArith.
+Open Scope Z_scope.
+Theorem sub_add : forall a, a - 1 + 1 = a.
+Proof.
+intros a.
+ring.
+Qed.
+Close Scope Z_scope.
+
+(**********************************************************************************************************)
+Require Import Qcanon.
+Require Import Field.
+Open Scope Qc_scope.
+
+Theorem qc_frac : forall a b c : Qc, c <> 0 -> (a + b) / c = a / c + b / c.
+Proof.
+intros a b c neq.
+field.
+assumption.
+Qed.
+Close Scope Qc_scope.
+(**********************************************************************************************************)
+Module RealExample.
+
+Require Import Reals.
+Open Scope R_scope.
+
+Theorem real_frac : forall a b c , c <> 0 -> (a + b) / c = a / c + b / c.
+Proof.
+intros a b c neq.
+field.
+assumption.
+Qed.
+End RealExample.
+(*********************************************************************************************************)
+
+Print app_nil.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,31 @@
+(**
+ * Proofs are Programs
+ *)
+
+(* 
+Pick a few of these propositions, and prove them by directly
+writing down the Coq program that is the proof, rather than
+using tactics to help construct the proof.  
+  (A -> B) -> ((B -> C) -> (A -> C))
+  A -> (A \/ B)
+  B -> (A \/ B)
+  (A -> C) -> ((B -> C) -> ((A \/ B) -> C))
+  A /\ B -> A
+  A /\ B -> B
+  (C -> A) -> ((C -> B) -> (C -> (A /\ B)))
+  (A -> (B -> C)) -> ((A /\ B) -> C)
+  ((A /\ B) -> C) -> (A -> (B -> C))
+  (A /\ ~A) -> B
+  (A -> (A /\ ~A)) -> ~A
+  A -> (A -> B) -> B 
+
+Here's an example of what we mean, using the first proposition
+from above:
+*)
+
+Definition example1 : forall A B C : Prop, 
+  (A -> B) -> ((B -> C) -> (A -> C)) 
+:=
+  fun (A B C : Prop) (ab : A -> B) (bc : B -> C) (a : A) =>
+    bc (ab a).
+

@@ -1,0 +1,144 @@
+Require Import List.
+Import ListNotations.
+
+(** Append function*)
+
+Fixpoint append {A : Type} (lst1 : list A) (lst2 : list A) :=
+ match lst1 with
+ | nil => lst2
+ | h :: t => h :: (append t lst2)
+ end.
+
+Compute append [1;2;3;4] [3;5;6].
+
+(** Definition of append in standard Coq Library *)
+
+Definition app (A: Type) : list A -> list A -> list A :=
+ fix app lst1 lst2 :=
+ match lst1 with
+ | nil => lst2
+ | h :: t => h :: (app t lst2)
+ end.
+
+Compute app nat [1;2;3;4] [3;5;6].
+
+
+Theorem nil_app_left : forall (A : Type) (lst : list A) , [] ++ lst = lst.
+
+Proof.
+ intros.
+ simpl.
+ trivial.
+Qed.
+
+Theorem nil_app_right : forall (A : Type) ( lst : list A), lst ++ [] = lst.
+Proof.
+ intros A lst.
+ induction lst as [ | h t IH].
+ - simpl.
+   trivial.
+ - simpl.
+   rewrite -> IH.
+   trivial.
+Qed.
+
+Theorem app_assoc : forall (A : Type) (lst1 lst2 lst3 : list A), lst1 ++ (lst2 ++ lst3) = (lst1 ++ lst2) ++ lst3.
+
+(*Theorem:  forall lists l1 l2 l3, l1 ++ (l2 ++ l3) = (l1 ++ l2) ++ l3.
+
+Proof: by induction on l1.
+P(l1) = l1 ++ (l2 ++ l3) = (l1 ++ l2) ++ l3
+
+Case:  l1 = nil
+Show:
+  P(nil)
+= nil ++ (l2 ++ l3) = (nil ++ l2) ++ l3
+= l2 ++ l3 = l2 ++ l3   // simplifying ++, twice 
+
+Case:  l1 = h::t
+IH:  P(t) = t ++ (l2 ++ l3) = (t ++ l2) ++ l3
+Show:
+  P(h::t)
+= h::t ++ (l2 ++ l3) = (h::t ++ l2) ++ l3
+= h::(t ++ (l2 ++ l3)) = h::((t ++ l2) ++ l3)  // simplifying ++, thrice
+= h::((t ++ l2) ++ l3) = h::((t ++ l2) ++ l3)  // by IH
+
+QED*)
+
+Proof.
+intros A lst1 lst2 lst3.
+induction lst1 as [ | h t IH].
+-trivial.
+-simpl.
+rewrite -> IH.
+trivial.
+Qed.
+
+(********************************************************************************************************)
+Compute S (S O).
+
+Require Import Arith.
+
+Locate "=?".
+Check Nat.eqb.
+
+Fixpoint sum_to (n:nat) : nat :=
+  match n with
+  | 0 => 0
+  | S k => n + sum_to k
+  end.
+
+Lemma sum_helper : forall n : nat,
+ 2 * sum_to (S n) = 2 * (S n) + 2 * sum_to n.
+Proof.
+ intros n.
+ simpl.
+ ring.
+Qed.
+
+Theorem sum_sq_no_div : forall n : nat, 
+  2 * sum_to n = n * (n+1).
+Proof.
+  intros n.
+  induction n as [ | k IH].
+  - trivial.
+  - rewrite -> sum_helper.
+  rewrite -> IH.
+  ring.
+Qed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

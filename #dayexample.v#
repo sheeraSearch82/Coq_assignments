@@ -1,0 +1,125 @@
+Inductive day : Type :=
+| sun : day
+| mon : day
+| tue : day
+| wed : day
+| thu : day
+| fri : day
+| sat : day.
+
+Let next_day d :=
+  match d with
+  | sun => mon
+  | mon => tue
+  | tue => wed
+  | wed => thu
+  | thu => fri
+  | fri => sat
+  | sat => sun
+  end.
+
+Definition prev_day d :=
+  match d with
+  | sun => sat
+  | mon => sun
+  | tue => mon
+  | wed => tue
+  | thu => wed
+  | fri => thu
+  | sat => fri
+  end.
+
+Theorem wed_after_tue : next_day tue = wed.
+Proof.
+  auto.
+Qed.
+
+Theorem wed_after_tue' : next_day tue = wed.
+Proof.
+  simpl. trivial.
+Qed.
+
+
+Theorem day_never_repeats : forall d : day, next_day d <> d.
+Proof.
+  intros d. destruct d.
+  all: discriminate.
+Qed.
+
+Theorem day_never_repeats'' : forall d : day, next_day d <> d.
+Proof.
+  intros d. destruct d; discriminate.
+Qed.
+
+Theorem mon_preceds_tues : forall d : day, 
+  next_day d = tue -> d = mon.
+Proof.
+  intros d next_day_is_tue.
+  destruct d.
+  all: discriminate || trivial.
+Qed.
+
+Definition negb (b:bool) : bool :=
+  match b with
+  | true => false
+  | false => true
+  end.
+
+Definition nandb (b1:bool) (b2:bool) : bool :=
+  match b1 with
+  | true => negb b2
+  | false => true
+  end.
+
+Example test_nandb1: (nandb true false) = true.
+Proof.
+ simpl.
+ reflexivity.
+Qed.
+Example test_nandb2: (nandb true true) = false.
+Proof.
+ simpl.
+ reflexivity.
+Qed.
+Example test_nandb3: (nandb false false) = true.
+Proof.
+ simpl.
+ reflexivity.
+Qed.
+Example test_nandb4: (nandb false true) = true.
+Proof.
+ simpl.
+ reflexivity.
+Qed.
+
+Definition andb3 (b1:bool) (b2:bool) (b3:bool) : bool :=
+  match b1 , b2 with
+  | true , true  => b3
+  | _ , _  => false
+  end.
+
+Example test_andb1: (andb3 true true true) = true.
+Proof.
+ simpl.
+ reflexivity.
+Qed.
+Example test_andb2: (andb3 true true false) = false.
+Proof.
+ simpl.
+ reflexivity.
+Qed.
+Example test_andb3: (andb3 false false true) = false.
+Proof.
+ simpl.
+ reflexivity.
+Qed.
+Example test_andb4: (andb3 false true true) = false.
+Proof.
+ simpl.
+ reflexivity.
+Qed.
+
+(*Some more tests are there. A total of 8 tests --- skipping that for time being*)
+
+
+

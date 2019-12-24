@@ -1,0 +1,40 @@
+Check list.
+
+Definition natlist : Type := list nat.
+
+Check natlist.
+
+Theorem obviousfact : 1 + 1 = 2.
+Proof.
+ trivial.
+Qed.
+
+Check obviousfact.
+
+Print obviousfact.
+
+Theorem obviousfact' : 1 + 1 = 2.
+Proof.
+ simpl.
+ reflexivity.
+Qed.
+
+
+Check nat.
+
+Check Set.
+
+Check eq.
+
+Check @eq.
+
+Check and.
+
+Theorem p_implies_p : forall P: Prop, P -> P.
+
+Proof.
+ intros P.
+ intros P_assumed.
+ assumption.
+Qed.
+
